@@ -1,0 +1,155 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  body {
+    background-color: #2e1881;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .left-side {
+    width: 33%;
+    background-color: #2e1881;
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .right-side {
+    width: 80vw;
+    height: 100vh;
+    border-top-left-radius: 28px;
+    border-bottom-left-radius: 28px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #91b8f1;
+    align-items: center;
+    padding: 40px;
+  }
+  
+  .auth-container {
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin: auto;
+  }
+  
+  .logo-container {
+    position: absolute;
+    top: 50%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .logo-container .logo {
+    width: 300px;
+    height: auto;
+    border-radius: 32px;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333333;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    color: #666666;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #dddddd;
+    font-size: 14px;
+    color: #333333;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: #58a6ff;
+  }
+  
+  button {
+    width: 100%;
+    padding: 10px;
+    background-color: #2b0ebc;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #1b426b;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #777777;
+    margin-top: 10px;
+  }
+  
+  p a {
+    color: #4d47e7;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  p a:hover {
+    text-decoration: underline;
+  }
+  
+  #loginMessage, #signupMessage {
+    margin-top: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .left-side {
+      width: 100%;
+      padding: 20px;
+    }
+    .right-side {
+      width: 100%;
+    }
+    .auth-container {
+      width: 95%;
+      padding: 30px;
+    }
+  }
+  
