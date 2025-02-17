@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './auth.css';
 
-const Auth = () => {
+const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState(''); // Define error state
+  const navigate = useNavigate(); // Initialize navigate
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -12,13 +15,20 @@ const Auth = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-
+    
     if (isLogin) {
       // Handle login logic
-      console.log('Login data:', data);
+      if (data.username === "testuser" && data.password === "password123") {
+        onLogin(); // Simulate successful login
+        navigate('/home'); // Navigate to homepage after login
+      } else {
+        setError('Invalid login credentials'); // Set error message for invalid login
+      }
     } else {
       // Handle signup logic
       console.log('Signup data:', data);
+      onLogin(); // Simulate successful signup
+      navigate('/home'); // Navigate to homepage after signup
     }
   };
 
@@ -52,6 +62,7 @@ const Auth = () => {
             <div className="form-group">
               <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
             </div>
+            {error && <p className="error-message">{error}</p>} {/* Display error message */}
           </form>
           <p>
             {isLogin ? (
