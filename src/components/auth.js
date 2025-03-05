@@ -34,11 +34,11 @@ const Auth = ({ onLogin }) => {
 
   return (
     <div className="container">
-      <div className="left-side">
-        <h1>EchoSpace</h1>
-        <div className="logo-container">
+      <div className="logo-container">
           <img src="images/logo.jpg" alt="EchoSpace Logo" className="logo" />
         </div>
+      <div className="left-side">
+        <h1>EchoSpace</h1>
       </div>
 
       <div className="right-side">
