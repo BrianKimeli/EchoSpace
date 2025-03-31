@@ -1,38 +1,79 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Auth from './components/auth';
-import HomePage from './components/HomePage';
-import './App.css';
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import HomePage from "./components/HomePage";
+import Auth from "./components/auth";
+import Messages from "./components/messages";
+import Settings from "./components/settings";
+import Communities from "./components/communities";
 
-const App = () => {
+function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    // Simulate login and set authenticated state
-    setIsAuthenticated(true);
-    console.log('User logged in');
-  };
-
   const handleLogout = () => {
-    // Simulate logout and reset authentication state
+    localStorage.removeItem("token");
     setIsAuthenticated(false);
-    console.log('User logged out');
   };
 
   return (
     <Router>
       <Routes>
-        {/* If user is authenticated, navigate to homepage, otherwise show Auth */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/home" /> : <Auth onLogin={handleLogin} />} />
+        <Route
+          path="/login"
+          element={
+            !isAuthenticated ? (
+              <Auth setIsAuthenticated={setIsAuthenticated} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <HomePage handleLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/messages"
+          element={
+            isAuthenticated ? (
+              <Messages setIsAuthenticated={setIsAuthenticated} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            isAuthenticated ? (
+              <Settings setIsAuthenticated={setIsAuthenticated} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/communities"
+          element={
+            isAuthenticated ? (
+              <Communities setIsAuthenticated={setIsAuthenticated} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
+        />
 
-        {/* Route for the Homepage, add logout functionality */}
-        <Route path="/home" element={isAuthenticated ? <HomePage onLogout={handleLogout} /> : <Navigate to="/login" />} />
-
-        {/* Default route (redirect to login or homepage based on authentication) */}
-        <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );
-};
+}
 
 export default App;

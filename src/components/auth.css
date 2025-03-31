@@ -72,10 +72,10 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-.form-group button {
+#submit-button {
   background-color: #141a69;
   color: white;
   padding: 10px 20px;
@@ -83,16 +83,17 @@ h2 {
   cursor: pointer;
   width: 100%;
   border: 1px solid #08a9f9;
+  margin-bottom: 20px;
 }
 
-.form-group button:hover {
+#submit-button:hover {
   background-color: #094d7b;
 }
 
 
 label {
   font-size: 14px;
-  color: #666;
+  color: #f4f4f7;
   margin-bottom: 5px;
   display: block;
 }
@@ -103,6 +104,13 @@ input {
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+}
+
+#toggle-button {
+  background-color: #714ee2;
+  border-radius: 5px;
+  border: 2px solid #714ee2;
+  cursor: pointer;
 }
 
 p {
