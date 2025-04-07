@@ -2,19 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./auth.css";
 
-const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated }) => {
-  const [isLogin, setIsLogin] = useState(initialIsLogin);
+const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) => {
+  const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Sync local state with prop changes
-  useEffect(() => {
-    setIsLogin(initialIsLogin);
-  }, [initialIsLogin]);
 
   const handleToggleForm = () => {
     setIsLogin(!isLogin);
@@ -58,14 +53,27 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated }) => {
         throw new Error(data.error || "Authentication failed");
       }
 
+      // Inside handleSubmit, after the API call succeeds:
       localStorage.setItem("token", data.token);
-      setIsAuthenticated(true);
-      navigate("/");
+      if (isLogin) {
+        setIsAuthenticated(true);
+        navigate("/"); // For login, navigate to home
+      } else {
+        // For signup, call the onSignupSuccess callback
+        if (typeof onSignupSuccess === "function") {
+          onSignupSuccess();
+        } else {
+          navigate("/profilesetup");
+        }
+      }
+      
+
     } catch (err) {
       setError(err.message.replace(/['"]+/g, ""));
     } finally {
       setLoading(false);
     }
+
   };
 
   return (

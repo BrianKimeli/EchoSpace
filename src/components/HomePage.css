@@ -17,8 +17,8 @@ body {
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: auto 1fr;
   height: 100vh;
-  grid-gap: 15px;
   padding: 15px;
+  grid-gap: 5px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -291,7 +291,7 @@ overflow-y: auto;
 height: calc(100vh - 80px); /* Adjust height based on top bar and padding */
 display: flex;
 flex-direction: column;
-gap: 15px;
+gap: 10px;
 scroll-behavior: smooth;
 }
 
@@ -327,6 +327,16 @@ scroll-behavior: smooth;
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 15px;
+}
+
+.warning {
+  background-color: #ffdddd;
+  color: #d8000c;
+  border: 1px solid #d8000c;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: center;
 }
 
 .profile-pic-post {
@@ -484,7 +494,7 @@ scroll-behavior: smooth;
 .feed {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .feed::-webkit-scrollbar {
@@ -674,37 +684,121 @@ scroll-behavior: smooth;
   }
 }
 
-.comments-preview {
-  padding-top: 15px;
+/* Base styling for the comments section (minimal spacing) */
+.comments-section {
+  margin-top: 6px;
+  padding: 4px;
+  background-color: #fcfcfc;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  font-size: 0.85rem;
 }
 
+/* When comments section is collapsed, show only a limited height (e.g., 2 comments) */
+.comments-section.collapsed {
+  max-height: 50px; /* Adjust this value to show only 2-3 small comments */
+}
+
+/* Overlay to indicate more comments are available when collapsed */
+.comments-section.collapsed::after {
+  content: "Show more comments";
+  display: block;
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(252,252,252,0.95));
+  text-align: center;
+  padding: 2px 0;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+/* Style for individual comments (compact spacing) */
+.comments-section .comment {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 4px;
+  padding: 2px 4px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.comments-section .comment:last-child {
+  border-bottom: none;
+}
+
+/* Compact profile picture within a comment */
+.comment-profile-pic {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Comment details (compact) */
+.comment-details {
+  flex: 1;
+}
+
+/* New comment input container (compact styling) */
 .comment-input-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.comment-profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+  margin-top: 4px;
+  padding: 2px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .comment-input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  font-size: 14px;
+  padding: 4px 6px;
+  border: none;
   outline: none;
-  transition: border-color 0.3s ease;
+  font-size: 0.85rem;
 }
 
-.comment-input:focus {
-  border-color: #007bff;
+.comment-text {
+  margin-top: 0;
 }
 
+/* Comment Button Active/Inactive States */
+.comment-btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: #555;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.comment-btn.active {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.comment-btn:hover {
+  background-color: #f0f2f5;
+}
+
+.dark-mode .comment-btn:hover {
+  background-color: #343a40;
+}
+
+/* Comment Button Active State */
+.comment-btn.active {
+  color: #007bff;
+  font-weight: 500;
+}
 /* Buttons with Icons */
 .post-interactions button svg {
   font-size: 16px;
@@ -953,6 +1047,7 @@ scroll-behavior: smooth;
   background: #4a2f7f;
   border-radius: 4px;
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
