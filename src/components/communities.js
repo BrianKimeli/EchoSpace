@@ -24,7 +24,7 @@ export default function Communities() {
     <div className="communities-page">
       {/* Header */}
       <header className="communities-header">
-        <div className="logo">Logo</div>
+        <div className="logo">EchoSpace</div>
         <input type="text" className="search-bar" placeholder="Search Communities..." />
         <div className="profile-icons">
           <span className="profile-pic">👤</span>

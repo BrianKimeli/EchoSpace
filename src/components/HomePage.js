@@ -3,7 +3,7 @@ import {
   FaHome, FaImage, FaLink, FaComment, FaShare, FaArrowUp, FaArrowDown, FaUsers, FaComments, FaBell, 
   FaMoon, FaSignOutAlt, FaSun, FaBars, FaSearch, FaUser, FaCog, FaPlus, FaRocket, FaChevronRight, 
   FaPalette, FaLeaf, FaMicrophone, FaEllipsisH, FaChartLine, FaTimes, FaBookmark, FaQuestionCircle, 
-  FaMagic, FaVideo, FaSlidersH, FaHeadphones, FaPodcast 
+  FaMagic, FaVideo, FaSlidersH, FaHeadphones, FaPodcast, FaFileAudio 
 } from 'react-icons/fa';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
@@ -11,15 +11,11 @@ import './HomePage.css';
 
 const HomePage = ({ handleLogout }) => {
   const navigate = useNavigate();
-  const handleLogoutClick = () => {
-    handleLogout();
-    navigate('/login');
-  };
-
   const { currentUser } = useContext(UserContext);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [postText, setPostText] = useState('');
-  const [imagePreview, setImagePreview] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
+  const [mediaType, setMediaType] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -30,11 +26,97 @@ const HomePage = ({ handleLogout }) => {
   const [warning, setWarning] = useState('');
   const [posts, setPosts] = useState([]);
   const [postInteractions, setPostInteractions] = useState({});
-  // Remove the problematic immediate state update that causes infinite re-render
-  // (Do not call setPosts directly in the render body.)
-
   const [commentsVisible, setCommentsVisible] = useState({});
+  const [handleShare, setHandleShare] = useState({});
+  const [handleSave, setHandleSave] = useState({});
 
+  // Media handling
+  const handleMediaUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaPreview(reader.result);
+        setMediaType(file.type.split('/')[0]); // 'image', 'video', or 'audio'
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const hatedWords = [  'suicide',
+    'self-harm',
+    'abuse',
+    'kill',
+    'hate',
+    'die',
+    'shoot',
+    'dead',
+ ]
+  const removeMediaPreview = () => {
+    setMediaPreview(null);
+    setMediaType(null);
+  };
+
+  // Post creation
+  const handleNewPost = async () => {
+    if (!postText.trim() && !mediaPreview) {
+      alert('Please add some text or media to post!');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('content', postText);
+      formData.append('userId', currentUser._id);
+
+      if (mediaPreview) {
+        const blob = await fetch(mediaPreview).then(r => r.blob());
+        formData.append('media', blob);
+        formData.append('mediaType', mediaType);
+      }
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/posts', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        const isFlagged = checkForHatedWords(newPost.content);
+        setPosts(prevPosts => [{
+          ...newPost,
+          flagged: isFlagged,
+          comments: [],
+          likes: 0
+        }, ...prevPosts]);
+        setPostText('');
+        setMediaPreview(null);
+        setMediaType(null);
+      }
+    } catch (error) {
+      console.error('Post creation error:', error);
+    }
+  };
+
+  // Media render helper
+  const renderMediaPreview = () => {
+    if (!mediaPreview) return null;
+    
+    switch(mediaType) {
+      case 'image':
+        return <img src={mediaPreview} alt="Preview" className="preview-media" />;
+      case 'video':
+        return <video controls className="preview-media" src={mediaPreview} />;
+      case 'audio':
+        return <audio controls className="preview-media" src={mediaPreview} />;
+      default:
+        return null;
+    }
+  };
   const toggleComments = (postId) => {
     setCommentsVisible(prevState => ({
       ...prevState,
@@ -78,10 +160,25 @@ const HomePage = ({ handleLogout }) => {
     localStorage.setItem('darkMode', newDarkModeState);
   };
 
-  const forbiddenWords = ['hate', 'kill', 'destroy'];
-  const checkForForbiddenWords = (content) => {
-    return forbiddenWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content));
+  const checkForHatedWords = (content) => {
+    return hatedWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content));
   };
+
+  const fetchPosts = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/posts');
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.map(post => ({
+          ...post,
+          comments: post.comments || [],
+          flagged: checkForHatedWords(post.content) // flagged status
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  }, []);
 
   const checkContentSafety = async (content) => {
     try {
@@ -101,79 +198,11 @@ const HomePage = ({ handleLogout }) => {
     }
   };
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/posts');
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data.map(post => ({
-          ...post,
-          comments: post.comments || []
-        })));
-      }
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  }, []);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
-  const handleNewPost = async () => {
-    if (postText.trim() || imagePreview) {
-      if (checkForForbiddenWords(postText)) {
-        setWarning('⚠ Your post contains language that may be considered harmful. Please modify your content.');
-        setTimeout(() => setWarning(''), 3000);
-        return;
-      }
-      if (!currentUser || !currentUser._id) {
-        alert('User information is not available. Please try logging in again.');
-        return;
-      }
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/posts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            userId: currentUser._id,
-            content: postText,
-            image: imagePreview
-          })
-        });
-        if (response.ok) {
-          const newPost = await response.json();
-          setPosts([newPost, ...posts]);
-          setPostText('');
-          setImagePreview(null);
-        } else {
-          const errorData = await response.json();
-          console.error('Error creating post:', errorData);
-          alert('Failed to create post.');
-        }
-      } catch (error) {
-        console.error('Error creating post:', error);
-        alert('Failed to connect to the server to create post.');
-      }
-    } else {
-      alert('Please add some text or an image to post!');
-    }
-  };
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeImagePreview = () => setImagePreview(null);
 
   const handleAddLink = () => {
     const url = prompt('Enter the URL:');
@@ -279,7 +308,6 @@ const HomePage = ({ handleLogout }) => {
           <div className="profile-dropdown">
             <img 
               src={currentUser?.profilePicture || '/default-avatar.png'} 
-              alt="Profile" 
               className="profile-pic" 
               onClick={() => setShowProfileDropdown(prev => !prev)}
             />
@@ -289,7 +317,7 @@ const HomePage = ({ handleLogout }) => {
                 <div className="dropdown-item"><Link to="/profile"><FaUser /> Profile</Link></div>
                 <div className="dropdown-item"><FaCog /> Settings</div>
                 <div className="dropdown-item">
-                  <button onClick={handleLogoutClick}>
+                  <button onClick={handleLogout}>
                     <FaSignOutAlt /> Logout
                   </button>
                 </div>
@@ -355,57 +383,60 @@ const HomePage = ({ handleLogout }) => {
         {warning && <div className="warning">{warning}</div>}
         <div className="post-box">
           <div className="post-box-header">
-            <img src={currentUser?.profilePicture || "https://via.placeholder.com/50"} alt="Profile" className="profile-pic-post" />
+            <img src={currentUser?.profilePicture || "https://via.placeholder.com/50"} 
+                 alt="Profile" 
+                 className="profile-pic-post" />
             <textarea
               placeholder="You wanna say something?"
               className="post-input"
               value={postText}
               onChange={(e) => setPostText(e.target.value)}
             />
-            <button className="voice-btn">
-              <FaMicrophone />
-            </button>
           </div>
-          {imagePreview && (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" className="preview-image" />
-              <button className="remove-image-btn" onClick={removeImagePreview}>
+
+          {mediaPreview && (
+            <div className="media-preview">
+              {renderMediaPreview()}
+              <button className="remove-media-btn" onClick={removeMediaPreview}>
                 <FaTimes />
               </button>
             </div>
           )}
+
           <div className="post-options">
-            <button className="option-btn" onClick={() => document.getElementById('image-upload').click()}>
-              <FaImage /> Add Image
+            <button className="option-btn" 
+                    onClick={() => document.getElementById('media-upload').click()}>
+              <FaImage /> Add Media
             </button>
+            <input
+              type="file"
+              id="media-upload"
+              accept="image/*, video/*, audio/*"
+              style={{ display: 'none' }}
+              onChange={handleMediaUpload}
+            />
             <button className="option-btn" onClick={handleAddLink}>
               <FaLink /> Add Link
-            </button>
-            <button className="option-btn">
-              <span className="voice-icon">🎤</span> Voice
             </button>
           </div>
           <button className="new-post-btn" onClick={handleNewPost}>
             <FaPlus /> New Post
           </button>
-          <input
-            type="file"
-            id="image-upload"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageUpload}
-          />
         </div>
 
         <div className="feed">
-          {posts.map((post) => (
-            <div className="post" key={post._id} style={{ position: 'relative' }}>
-              {post.flagged ? (
+        {posts.map((post) => (
+          <div className={`post ${post.flagged ? 'flagged' : ''}`} key={post._id}>
+            {/* Add this overlay container */}
+            {post.flagged && (
+              <div className="flag-overlay">
                 <div className="flag-alert">
-                  This post has been flagged for review and is currently hidden.
+                  <div className="warning-icon">⚠️</div>
+                  <h3>Content Warning</h3>
+                  <p>This post contains sensitive content</p>
                 </div>
-              ) : (
-                <>
+              </div>
+            )}
                   <div className="post-header">
                     <div className="post-author">
                       <img 
@@ -432,8 +463,21 @@ const HomePage = ({ handleLogout }) => {
                     </button>
                   </div>
                   <div className="post-text">{post.content}</div>
-                  {post.image && <img src={post.image} alt="Post" className="post-media" />}
-                  <div className="post-content">
+              
+              {post.media && (
+                <div className="post-media-container">
+                  {post.mediaType === 'image' && (
+                    <img src={post.media} alt="Post media" className="post-media" />
+                  )}
+                  {post.mediaType === 'video' && (
+                    <video controls className="post-media" src={post.media} />
+                  )}
+                  {post.mediaType === 'audio' && (
+                    <audio controls className="post-media" src={post.media} />
+                  )}
+                </div>
+              )}
+                   <div className={`post-content ${post.flagged ? 'blurred' : ''}`}>
                     <div className="post-stats">
                       <span>{post.likes} likes</span>
                       <span>{(post.comments || []).length} comments</span>
@@ -441,7 +485,7 @@ const HomePage = ({ handleLogout }) => {
                     <div className="post-interactions">
                       <button 
                         className={`upvote-btn ${postInteractions[post._id]?.liked ? 'active' : ''}`}
-                        onClick={() => handlePostInteraction(post.id, 'like')}
+                        onClick={() => handlePostInteraction(post._id, 'like')}
                       >
                         <FaArrowUp /> Like
                       </button>
@@ -455,10 +499,11 @@ const HomePage = ({ handleLogout }) => {
                         <FaComment /> Comment
                       </button>
                       <button className="share-btn">
-                        <FaShare /> Share
+                      <FaShare /> Share
                       </button>
-                      <button className="bookmark-btn">
-                        <FaBookmark /> Save
+                      <button 
+                      className={`bookmark-btn`}>
+                      <FaBookmark /> Save
                       </button>
                     </div>
                     <div className={`comments-section ${commentsVisible[post._id] ? '' : 'collapsed'}`}>
@@ -499,9 +544,7 @@ const HomePage = ({ handleLogout }) => {
                         <button onClick={() => handleCommentSubmit(post._id)}>Post</button>
                       </div>
                     </div>
-                  </div>
-                </>
-              )}
+              </div>
             </div>
           ))}
         </div>

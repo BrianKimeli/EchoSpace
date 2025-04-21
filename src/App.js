@@ -104,8 +104,17 @@ function App() {
               <ProfileSetup onComplete={handleProfileComplete} />
             }
           />
+          <Route
+            path="/ai"
+            element={
+              isAuthenticated ? (
+                <AIPage setIsAuthenticated={setIsAuthenticated}/>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/ai" element={<AIPage />} />
         </Routes>
       </Router>
     </UserProvider>
