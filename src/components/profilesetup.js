@@ -140,6 +140,7 @@ const ProfileSetup = ({ onComplete }) => {
                 />
               </div>
               {errors.username && <p className="error-message">{errors.username}</p>}
+              }
               {formData.username && !errors.username && (
                 <p className="username-available">
                   <Check size={16} className="check-icon" /> Username is available
