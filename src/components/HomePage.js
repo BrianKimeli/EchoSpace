@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
+import { hatedWords } from './hateWords';
 import './HomePage.css';
 
 const HomePage = ({ handleLogout }) => {
@@ -42,18 +43,13 @@ const HomePage = ({ handleLogout }) => {
     }
   };
 
-  const hatedWords = [  'suicide',
-    'self-harm',
-    'abuse',
-    'kill',
-    'hate',
-    'die',
-    'shoot',
-    'dead',
- ]
   const removeMediaPreview = () => {
     setMediaPreview(null);
     setMediaType(null);
+  };
+
+  const checkForHatedWords = (content) => {
+    return hatedWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content.toLowerCase()));
   };
 
   // Enhanced post creation with better error handling
@@ -118,6 +114,7 @@ const HomePage = ({ handleLogout }) => {
         return null;
     }
   };
+
   const toggleComments = (postId) => {
     setCommentsVisible(prevState => ({
       ...prevState,
@@ -180,7 +177,7 @@ const HomePage = ({ handleLogout }) => {
     if (posts.length === 0) {
       setPosts(demoPosts);
     }
-  }, []);
+  }, [posts.length]);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -193,10 +190,6 @@ const HomePage = ({ handleLogout }) => {
     setIsDarkMode(newDarkModeState);
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('darkMode', newDarkModeState);
-  };
-
-  const checkForHatedWords = (content) => {
-    return hatedWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content.toLowerCase()));
   };
 
   const fetchPosts = useCallback(async () => {
@@ -290,14 +283,14 @@ const HomePage = ({ handleLogout }) => {
                   )}
                 </div>
                 <div className="notification unread">
-                  <img src="https://via.placeholder.com/30" alt="User1" className="notification-profile-pic" />
+                  <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=30" alt="User1" className="notification-profile-pic" />
                   <div className="notification-content">
                     <strong>User1</strong> liked your post
                     <span className="notification-time">5 min ago</span>
                   </div>
                 </div>
                 <div className="notification unread">
-                  <img src="https://via.placeholder.com/30" alt="User2" className="notification-profile-pic" />
+                  <img src="https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=30" alt="User2" className="notification-profile-pic" />
                   <div className="notification-content">
                     <strong>User2</strong> commented on your discussion
                     <span className="notification-time">20 min ago</span>
@@ -314,15 +307,16 @@ const HomePage = ({ handleLogout }) => {
           </button>
           <div className="profile-dropdown">
             <img 
-              src={currentUser?.profilePicture || '/default-avatar.png'} 
+              src={currentUser?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=50'} 
               className="profile-pic" 
               onClick={() => setShowProfileDropdown(prev => !prev)}
+              alt="Profile"
             />
             <span className="username">@{currentUser?.username || "Username"}</span>
             {showProfileDropdown && (
               <div className="dropdown-menu">
                 <div className="dropdown-item"><Link to="/profile"><FaUser /> Profile</Link></div>
-                <div className="dropdown-item"><FaCog /> Settings</div>
+                <div className="dropdown-item"><Link to="/settings"><FaCog /> Settings</Link></div>
                 <div className="dropdown-item">
                   <button onClick={handleLogout}>
                     <FaSignOutAlt /> Logout
@@ -336,19 +330,19 @@ const HomePage = ({ handleLogout }) => {
 
       {/* Left Menu */}
       <div className={`left-menu ${showLeftMenu ? 'show' : ''}`}>
-        <NavLink exact to="/home" className="menu-item" activeClassName="active">
+        <NavLink to="/home" className="menu-item">
           <FaHome className="icon" /> Home
         </NavLink>
-        <NavLink to="/communities" className="menu-item" activeClassName="active">
+        <NavLink to="/communities" className="menu-item">
           <FaUsers className="icon" /> Communities
         </NavLink>
-        <NavLink to="/ai" className="menu-item" activeClassName="active">
+        <NavLink to="/ai" className="menu-item">
           <FaComments className="icon" /> AI
         </NavLink>
-        <NavLink to="/messages" className="menu-item" activeClassName="active">
+        <NavLink to="/messages" className="menu-item">
           <FaUsers className="icon" /> Messages
         </NavLink>
-        <NavLink to="/settings" className="menu-item" activeClassName="active">
+        <NavLink to="/settings" className="menu-item">
           <FaCog className="icon" /> Settings
         </NavLink>
         <div className="featured-communities">
@@ -377,7 +371,7 @@ const HomePage = ({ handleLogout }) => {
           </button>
         </div>
         <div className="profile-summary">
-          <img src={currentUser?.profilePicture || '/default-avatar.png'} alt="Profile" className="profile-pic" />
+          <img src={currentUser?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=50'} alt="Profile" className="profile-pic" />
           <div className="profile-info">
             <h4>{currentUser?.name || "Your Name"}</h4>
             <p>@{currentUser?.username || "username"}</p>
@@ -390,7 +384,7 @@ const HomePage = ({ handleLogout }) => {
         {warning && <div className="warning">{warning}</div>}
         <div className="post-box">
           <div className="post-box-header">
-            <img src={currentUser?.profilePicture || "https://via.placeholder.com/50"} 
+            <img src={currentUser?.profilePicture || "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=50"} 
                  alt="Profile" 
                  className="profile-pic-post" />
             <textarea
@@ -426,51 +420,50 @@ const HomePage = ({ handleLogout }) => {
               <FaLink /> Add Link
             </button>
           </div>
-          <button className="new-post-btn" onClick={handleNewPost}>
+          <button className="new-post-btn" onClick={handleNewPost} disabled={isPosting}>
             <FaPlus /> {isPosting ? 'Posting...' : 'New Post'}
           </button>
         </div>
 
         <div className="feed">
-        {posts.map((post) => (
-          <div className={`post ${post.flagged ? 'flagged' : ''}`} key={post._id}>
-            {/* Add this overlay container */}
-            {post.flagged && (
-              <div className="flag-overlay">
-                <div className="flag-alert">
-                  <div className="warning-icon">⚠️</div>
-                  <h3>Content Warning</h3>
-                  <p>This post contains sensitive content</p>
-                </div>
-              </div>
-            )}
-                  <div className="post-header">
-                    <div className="post-author">
-                      <img 
-                        src={post.userId?.profilePicture || '/default-avatar.png'} 
-                        alt={post.userId?.username} 
-                        className="post-author-pic" 
-                      />
-                      <div className="post-author-info">
-                        <div className="post-author-name">
-                          {post.userId?.username || 'Unknown User'}
-                        </div>
-                        <div className="post-time">
-                          {new Date(post.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    <button className="post-options-btn">
-                      <FaEllipsisH />
-                    </button>
+          {posts.map((post) => (
+            <div className={`post ${post.flagged ? 'flagged' : ''}`} key={post._id}>
+              {post.flagged && (
+                <div className="flag-overlay">
+                  <div className="flag-alert">
+                    <div className="warning-icon">⚠️</div>
+                    <h3>Content Warning</h3>
+                    <p>This post contains sensitive content</p>
                   </div>
-                  <div className="post-text">{post.content}</div>
-              
+                </div>
+              )}
+              <div className="post-header">
+                <div className="post-author">
+                  <img 
+                    src={post.userId?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=50'} 
+                    alt={post.userId?.username} 
+                    className="post-author-pic" 
+                  />
+                  <div className="post-author-info">
+                    <div className="post-author-name">
+                      {post.userId?.username || 'Unknown User'}
+                    </div>
+                    <div className="post-time">
+                      {new Date(post.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <button className="post-options-btn">
+                  <FaEllipsisH />
+                </button>
+              </div>
+              <div className="post-text">{post.content}</div>
+          
               {post.media && (
                 <div className="post-media-container">
                   {post.mediaType === 'image' && (
@@ -484,73 +477,74 @@ const HomePage = ({ handleLogout }) => {
                   )}
                 </div>
               )}
-                   <div className={`post-content ${post.flagged ? 'blurred' : ''}`}>
-                    <div className="post-stats">
-                      <span>{post.likes} likes</span>
-                      <span>{(post.comments || []).length} comments</span>
-                    </div>
-                    <div className="post-interactions">
-                      <button 
-                        className={`upvote-btn ${postInteractions[post._id]?.liked ? 'active' : ''}`}
-                        onClick={() => handlePostInteraction(post._id, 'like')}
-                      >
-                        <FaArrowUp /> Like
-                      </button>
-                      <button 
-                        className={`downvote-btn ${postInteractions[post._id]?.disliked ? 'active' : ''}`}
-                        onClick={() => handlePostInteraction(post._id, 'dislike')}
-                      >
-                        <FaArrowDown /> Dislike
-                      </button>
-                      <button className="comment-btn" onClick={() => toggleComments(post._id)}>
-                        <FaComment /> Comment
-                      </button>
-                      <button className="share-btn">
-                      <FaShare /> Share
-                      </button>
-                      <button 
-                      className={`bookmark-btn`}>
-                      <FaBookmark /> Save
-                      </button>
-                    </div>
-                    <div className={`comments-section ${commentsVisible[post._id] ? '' : 'collapsed'}`}>
-                      {Array.isArray(post.comments) && post.comments.length > 0 ? (
-                        post.comments.map(comment => (
-                          <div key={comment._id} className="comment">
-                            <img
-                              src={comment.userId?.profilePicture || '/default-avatar.png'}
-                              alt={comment.userId?.username}
-                              className="comment-profile-pic"
-                            />
-                            <div className="comment-content">
-                              <span className="comment-author">
-                                @{comment.userId?.username || 'Unknown User'}
-                              </span>
-                              <p className="comment-text">{comment.content}</p>
-                            </div>
+              <div className={`post-content ${post.flagged ? 'blurred' : ''}`}>
+                <div className="post-stats">
+                  <span>{post.likes} likes</span>
+                  <span>{(post.comments || []).length} comments</span>
+                </div>
+                <div className="post-interactions">
+                  <button 
+                    className={`upvote-btn ${postInteractions[post._id]?.liked ? 'active' : ''}`}
+                    onClick={() => handlePostInteraction(post._id, 'like')}
+                  >
+                    <FaArrowUp /> Like
+                  </button>
+                  <button 
+                    className={`downvote-btn ${postInteractions[post._id]?.disliked ? 'active' : ''}`}
+                    onClick={() => handlePostInteraction(post._id, 'dislike')}
+                  >
+                    <FaArrowDown /> Dislike
+                  </button>
+                  <button className="comment-btn" onClick={() => toggleComments(post._id)}>
+                    <FaComment /> Comment
+                  </button>
+                  <button className="share-btn">
+                    <FaShare /> Share
+                  </button>
+                  <button className="bookmark-btn">
+                    <FaBookmark /> Save
+                  </button>
+                </div>
+                {commentsVisible[post._id] && (
+                  <div className="comments-section">
+                    {Array.isArray(post.comments) && post.comments.length > 0 ? (
+                      post.comments.map(comment => (
+                        <div key={comment._id} className="comment">
+                          <img
+                            src={comment.userId?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=32'}
+                            alt={comment.userId?.username}
+                            className="comment-profile-pic"
+                          />
+                          <div className="comment-content">
+                            <span className="comment-author">
+                              @{comment.userId?.username || 'Unknown User'}
+                            </span>
+                            <p className="comment-text">{comment.content}</p>
                           </div>
-                        ))
-                      ) : (
-                        <p className="no-comments">No comments yet</p>
-                      )}
-                      <div className="comment-input-container">
-                        <input
-                          type="text"
-                          className="comment-input"
-                          placeholder="Write a comment..."
-                          value={commentInputs[post._id] || ''}
-                          onChange={(e) =>
-                            setCommentInputs(prev => ({ ...prev, [post._id]: e.target.value }))
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-comments">No comments yet</p>
+                    )}
+                    <div className="comment-input-container">
+                      <input
+                        type="text"
+                        className="comment-input"
+                        placeholder="Write a comment..."
+                        value={commentInputs[post._id] || ''}
+                        onChange={(e) =>
+                          setCommentInputs(prev => ({ ...prev, [post._id]: e.target.value }))
+                        }
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            handleCommentSubmit(post._id);
                           }
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              handleCommentSubmit(post._id);
-                            }
-                          }}
-                        />
-                        <button onClick={() => handleCommentSubmit(post._id)}>Post</button>
-                      </div>
+                        }}
+                      />
+                      <button onClick={() => handleCommentSubmit(post._id)}>Post</button>
                     </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

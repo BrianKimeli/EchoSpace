@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './settings.css';
 
 const Settings = () => {
@@ -36,9 +37,15 @@ const Settings = () => {
     });
   };
 
+  const handleSaveChanges = () => {
+    // Mock save functionality
+    alert('Settings saved successfully!');
+  };
+
   return (
     <div className="settings-container">
       <div className="settings-sidebar">
+        <Link to="/" className="back-link">← Back to Home</Link>
         <h2 className="settings-title">EchoSpace Settings</h2>
         <nav>
           {sections.map((section) => (
@@ -47,7 +54,14 @@ const Settings = () => {
               className={`sidebar-item ${activeSection === section.id ? 'active' : ''}`}
               onClick={() => setActiveSection(section.id)}
             >
-              <i className={`fas fa-${section.icon}`}></i>
+              <span className="section-icon">
+                {section.icon === 'user' && '👤'}
+                {section.icon === 'shield' && '🛡️'}
+                {section.icon === 'lock' && '🔒'}
+                {section.icon === 'bell' && '🔔'}
+                {section.icon === 'palette' && '🎨'}
+                {section.icon === 'cog' && '⚙️'}
+              </span>
               {section.label}
             </button>
           ))}
@@ -59,7 +73,13 @@ const Settings = () => {
           <div className="settings-section">
             <h3>Profile Settings</h3>
             <div className="avatar-upload">
-              <div className="avatar-preview"></div>
+              <div className="avatar-preview">
+                <img 
+                  src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=80" 
+                  alt="Profile" 
+                  className="current-avatar"
+                />
+              </div>
               <button className="echo-btn">Change Avatar</button>
             </div>
             <div className="form-group">
@@ -78,7 +98,11 @@ const Settings = () => {
                 value={userData.bio}
                 onChange={handleInputChange}
                 maxLength="150"
+                rows="4"
               />
+              <div className="character-count">
+                {userData.bio.length}/150 characters
+              </div>
             </div>
           </div>
         )}
@@ -108,10 +132,60 @@ const Settings = () => {
           </div>
         )}
 
-        {/* Add other sections similarly */}
+        {activeSection === 'notifications' && (
+          <div className="settings-section">
+            <h3>Notification Settings</h3>
+            <div className="security-item">
+              <div>
+                <h4>Email Notifications</h4>
+                <p>Receive notifications via email</p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={userData.emailNotifications}
+                  onChange={() => handleToggle('emailNotifications')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div className="security-item">
+              <div>
+                <h4>Push Notifications</h4>
+                <p>Receive push notifications in your browser</p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={userData.pushNotifications}
+                  onChange={() => handleToggle('pushNotifications')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'appearance' && (
+          <div className="settings-section">
+            <h3>Appearance Settings</h3>
+            <div className="form-group">
+              <label>Theme</label>
+              <select
+                name="theme"
+                value={userData.theme}
+                onChange={handleInputChange}
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto</option>
+              </select>
+            </div>
+          </div>
+        )}
 
         <div className="settings-footer">
-          <button className="echo-btn primary">Save Changes</button>
+          <button className="echo-btn primary" onClick={handleSaveChanges}>Save Changes</button>
           <button className="echo-btn ghost">Discard Changes</button>
         </div>
       </div>

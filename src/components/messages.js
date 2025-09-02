@@ -42,7 +42,7 @@ const Messages = () => {
       <div className="sidebar-left">
         <div className="server-header">
           <h2>EchoSpace</h2>
-          <i className="fas fa-chevron-down"></i>
+          <Link to="/" className="back-link">← Back</Link>
         </div>
         
         <div className="channels-list">
@@ -52,7 +52,7 @@ const Messages = () => {
               className={`channel-item ${activeChannel.id === channel.id ? 'active' : ''}`}
               onClick={() => setActiveChannel(channel)}
             >
-              <i className="fas fa-hashtag"></i>
+              <span className="channel-prefix">#</span>
               {channel.name}
             </div>
           ))}
@@ -64,15 +64,17 @@ const Messages = () => {
         <div className="chat-header">
           <h3>{activeChannel.name}</h3>
           <div className="header-actions">
-            <button className="icon-btn"><i className="fas fa-user-plus"></i></button>
-            <button className="icon-btn"><i className="fas fa-cog"></i></button>
+            <button className="icon-btn" title="Add User">👥</button>
+            <button className="icon-btn" title="Settings">⚙️</button>
           </div>
         </div>
 
         <div className="chat-messages">
           {messages.map((message) => (
             <div key={message.id} className={`message ${message.sender === 'user' ? 'user' : ''}`}>
-              <div className="avatar"></div>
+              <div className="avatar">
+                {message.sender === 'user' ? '👤' : '🤖'}
+              </div>
               <div className="message-content">
                 <div className="message-bubble">
                   <p>{message.text}</p>
@@ -86,12 +88,12 @@ const Messages = () => {
         <form className="message-input" onSubmit={handleSendMessage}>
           <input
             type="text"
-            placeholder="Message #general-chat"
+            placeholder={`Message ${activeChannel.name}`}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <button type="submit" className="send-btn">
-            <i className="fas fa-paper-plane"></i>
+            📤
           </button>
         </form>
       </div>
@@ -99,9 +101,9 @@ const Messages = () => {
       {/* Right Sidebar */}
       <div className="sidebar-right">
         <div className="user-profile">
-          <div className="avatar-large"></div>
-          <h4>Your Name</h4>
-          <p>@username</p>
+          <div className="avatar-large">👤</div>
+          <h4>{currentUser?.name || "Your Name"}</h4>
+          <p>@{currentUser?.username || "username"}</p>
         </div>
 
         <div className="upcoming-events">

@@ -18,78 +18,31 @@ const ProfileSetup = ({ onComplete }) => {
   const totalSteps = 5;
 
   const { currentUser, updateUserData, fetchUserData } = useContext(UserContext);
-    console.log("ProfileSetup: Context functions available:", {
-      hasCurrentUser: !!currentUser,
-      hasUpdateUserData: typeof updateUserData === 'function',
-      hasFetchUserData: typeof fetchUserData === 'function'
-    });
-  // Check if context is properly loaded
-  console.log("Context loaded:", !!updateUserData);
 
   const handleCompleteProfile = async () => {
-    const formDataToSend = new FormData();
-    formDataToSend.append('username', formData.username);
-    formDataToSend.append('bio', formData.bio);
-    formDataToSend.append('location', formData.location);
-    if (formData.profilePicture instanceof File) {
-      formDataToSend.append('profilePicture', formData.profilePicture);
-    } else if (formData.profilePicture) {
-      formDataToSend.append('profilePicture', formData.profilePicture); // If it's already a URL
-    }
-    
     try {
-      console.log("Starting profile update...");
-      
-      // Debug: Check what's available in context
       if (typeof updateUserData !== 'function') {
         console.error("updateUserData is not a function:", updateUserData);
         alert("Error: Unable to update profile due to missing context function");
         return;
       }
       
-      // Handle file upload separately if needed
       let finalData = { ...formData };
       
-      // If profile picture is a File object, we need to upload it first
+      // Handle profile picture
       if (formData.profilePicture instanceof File) {
-        const formDataForFile = new FormData();
-        formDataForFile.append('profilePicture', formData.profilePicture);
-        
-        try {
-          const uploadResponse = await fetch('http://localhost:5000/api/users/upload-profile-picture', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            },
-            body: formDataForFile
-          });
-          
-          if (uploadResponse.ok) {
-            const { profilePictureUrl } = await uploadResponse.json();
-            finalData.profilePicture = profilePictureUrl;
-          } else {
-            console.error('Failed to upload profile picture');
-            // Use default if upload fails
-            finalData.profilePicture = '/avatar.png';
-          }
-        } catch (uploadError) {
-          console.error('Profile picture upload failed:', uploadError);
-          finalData.profilePicture = '/avatar.png';
-        }
+        // For demo purposes, use a placeholder image
+        finalData.profilePicture = 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=150';
       } else if (formData.profilePicture === 'default') {
-        finalData.profilePicture = '/avatar.png';
+        finalData.profilePicture = 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=150';
       }
       
-      // Update user data through context
-      console.log("Updating user data with:", finalData);
       const updated = await updateUserData(finalData);
       
       if (updated) {
-        console.log("Profile updated successfully");
         if (onComplete) onComplete(finalData);
-        navigate('/home');
+        navigate('/');
       } else {
-        console.error("Profile update returned false");
         alert("There was a problem updating your profile. Please try again.");
       }
     } catch (error) {

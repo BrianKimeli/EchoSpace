@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './ai.css';
 
@@ -7,10 +6,6 @@ const AIPage = () => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    
-    // DeepSeek API Configuration
-    const API_URL = 'https://api.deepseek.com/v1/chat/completions';
-    const API_KEY = 'sk-d2599d1e1c6542209f54cd1ca0b52304';
     
     useEffect(() => {
         setMessages([{
@@ -28,19 +23,19 @@ const AIPage = () => {
             setInput('');
             setLoading(true);
 
-            const response = await axios.post(API_URL, {
-                model: "deepseek-chat",
-                messages: [...messages, newMessage],
-                temperature: 0.7,
-                max_tokens: 500
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const aiResponse = response.data.choices[0].message.content;
+            // Mock AI response for demo
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const responses = [
+                "That's an interesting question! Let me help you with that.",
+                "I understand what you're asking. Here's what I think...",
+                "Great point! From my perspective, this could be approached in several ways.",
+                "Thanks for sharing that with me. I'd be happy to discuss this further.",
+                "That's a thoughtful question. Let me break this down for you."
+            ];
+            
+            const aiResponse = responses[Math.floor(Math.random() * responses.length)];
+            
             setMessages(prev => [...prev, {
                 role: "assistant",
                 content: aiResponse
@@ -50,7 +45,7 @@ const AIPage = () => {
             console.error("AI Error:", error);
             setMessages(prev => [...prev, {
                 role: "assistant",
-                content: "⚠️ Error: " + (error.response?.data?.error?.message || "Service unavailable")
+                content: "⚠️ Error: Service temporarily unavailable. Please try again later."
             }]);
         } finally {
             setLoading(false);
@@ -67,8 +62,8 @@ const AIPage = () => {
     return (
         <div className="ai-container">
             <nav className="ai-navbar">
-                <Link to="/home" className="home-link">← Home</Link>
-                <h1>AI Chat</h1>
+                <Link to="/" className="home-link">← Back to Home</Link>
+                <h1>EchoSpace AI Assistant</h1>
             </nav>
             <div className="chat-box">
                 {messages.map((msg, index) => (
@@ -80,12 +75,16 @@ const AIPage = () => {
                         </div>
                         <div 
                             className="message-content"
-                            dangerouslySetInnerHTML={{ __html: msg.content }}
-                        />
+                        >
+                            {msg.content}
+                        </div>
                     </div>
                 ))}
                 {loading && (
                     <div className="message assistant">
+                        <div className="message-header">
+                            <span className="role-badge">EchoAI</span>
+                        </div>
                         <div className="typing-indicator">
                             <span></span><span></span><span></span>
                         </div>
@@ -98,6 +97,7 @@ const AIPage = () => {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask something..."
                     onKeyDown={handleKeyDown}
+                    disabled={loading}
                 />
                 <button 
                     onClick={handleSendMessage}

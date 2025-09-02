@@ -35,54 +35,47 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) 
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
+    // Password strength validation
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const endpoint = isLogin ? "login" : "signup";
-      const body = isLogin
-        ? { email: email.trim(), password: password.trim() }
-        : { username: username.trim(), email: email.trim(), password: password.trim() };
-
-      const response = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Authentication failed");
-      }
-
-      // Inside handleSubmit, after the API call succeeds:
-      localStorage.setItem("token", data.token);
+      // Mock authentication for demo purposes
+      const mockToken = `mock_token_${Date.now()}`;
+      localStorage.setItem("token", mockToken);
+      
       if (isLogin) {
         setIsAuthenticated(true);
-        navigate("/"); // For login, navigate to home
+        navigate("/");
       } else {
-        // For signup, call the onSignupSuccess callback
-        if (typeof onSignupSuccess === "function") {
-          onSignupSuccess();
-        } else {
-          navigate("/profilesetup");
-        }
+        navigate("/profilesetup");
       }
-      
-
     } catch (err) {
-      setError(err.message.replace(/['"]+/g, ""));
+      setError("Authentication failed. Please try again.");
     } finally {
       setLoading(false);
     }
-
   };
 
   return (
     <div className="container">
       <div className="logo-container">
-        <img src="images/logo.jpg" alt="EchoSpace Logo" className="logo" />
+        <img src="https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg?auto=compress&cs=tinysrgb&w=300" alt="EchoSpace Logo" className="logo" />
       </div>
       <div className="left-side">
         <h1>EchoSpace</h1>
+        <p className="tagline">Connect. Share. Echo.</p>
       </div>
       <div className="right-side">
         <div className="auth-container">
@@ -97,6 +90,7 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) 
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={loading}
                   placeholder="Enter username"
+                  autoComplete="username"
                 />
               </div>
             )}
@@ -108,6 +102,7 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) 
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
                 placeholder="Enter email"
+                autoComplete="email"
               />
             </div>
             <div className="form-group">
@@ -118,6 +113,7 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) 
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
                 placeholder="Enter password"
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
             </div>
             {error && <div className="error-message">{error}</div>}

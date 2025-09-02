@@ -66,7 +66,7 @@ const Profile = ({ username }) => {
   const displayUser = profileData || {
     username: "finesse",
     fullName: "Finesse Dev",
-    profilePicture: "/avatar.png",
+    profilePicture: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=100",
     bio: "Building EchoSpace 👨‍💻",
     location: "Nairobi",
     dateCreated: "2023-01-01",

@@ -3,7 +3,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 1000px;
+  max-width: 1000px;
+  margin: 0 auto;
   background: #0f172a;
   color: #f8fafc;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -13,9 +14,11 @@
 .ai-navbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 1rem 2rem;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #334155;
 }
 
 .home-link {
@@ -26,10 +29,23 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
 }
 
 .home-link:hover {
-  opacity: 0.8;
+  background: rgba(125, 211, 252, 0.1);
+  opacity: 0.9;
+}
+
+.ai-navbar h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Chat Box */
@@ -39,7 +55,6 @@
   overflow-y: auto;
   scroll-behavior: smooth;
   background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-  
 }
 
 /* Custom Scrollbar */
@@ -54,6 +69,10 @@
 .chat-box::-webkit-scrollbar-thumb {
   background: #334155;
   border-radius: 4px;
+}
+
+.chat-box::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Messages */
@@ -81,6 +100,7 @@
   background: #3b82f6;
   margin-left: auto;
   border-bottom-right-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .message.assistant {
@@ -88,6 +108,7 @@
   margin-right: auto;
   border-bottom-left-radius: 0.5rem;
   border: 1px solid #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Message Content */
@@ -114,6 +135,7 @@
 .message-content {
   line-height: 1.6;
   font-size: 1rem;
+  word-wrap: break-word;
 }
 
 .message-content a {
@@ -130,6 +152,7 @@
   display: inline-flex;
   gap: 0.5rem;
   padding: 1rem;
+  align-items: center;
 }
 
 .typing-indicator span {
@@ -164,6 +187,7 @@
   border-top: 1px solid #334155;
   display: flex;
   gap: 1rem;
+  align-items: flex-end;
 }
 
 textarea {
@@ -179,12 +203,22 @@ textarea {
   min-height: 50px;
   max-height: 150px;
   transition: border-color 0.2s;
+  font-family: inherit;
 }
 
 textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+textarea::placeholder {
+  color: #64748b;
 }
 
 .send-btn {
@@ -199,6 +233,8 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 80px;
+  justify-content: center;
 }
 
 .send-btn:hover {
@@ -216,6 +252,7 @@ textarea:focus {
 @media (max-width: 768px) {
   .ai-container {
     height: 100dvh;
+    width: 100%;
   }
   
   .message {
@@ -228,6 +265,20 @@ textarea:focus {
   
   textarea {
     padding: 0.75rem;
+    min-height: 40px;
+  }
+  
+  .send-btn {
+    padding: 0.6rem 1rem;
+    min-width: 60px;
+  }
+  
+  .ai-navbar {
+    padding: 1rem;
+  }
+  
+  .ai-navbar h1 {
+    font-size: 1.2rem;
   }
 }
 
@@ -275,6 +326,7 @@ textarea:focus {
   border-radius: 0.5rem;
   overflow-x: auto;
   margin: 1rem 0;
+  border: 1px solid #334155;
 }
 
 .message-content blockquote {
