@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { 
-  FaHome, FaImage, FaLink, FaComment, FaShare, FaArrowUp, FaArrowDown, FaUsers, FaComments, FaBell, 
-  FaMoon, FaSignOutAlt, FaSun, FaBars, FaSearch, FaUser, FaCog, FaPlus, FaRocket, FaChevronRight, 
-  FaPalette, FaLeaf, FaMicrophone, FaEllipsisH, FaChartLine, FaTimes, FaBookmark, FaQuestionCircle, 
-  FaMagic, FaVideo, FaSlidersH, FaHeadphones, FaPodcast, FaFileAudio 
+  FaHome, FaImage, FaLink, FaComment, FaShare, FaArrowUp, FaArrowDown, FaUsers, FaComments, FaBell,
+  FaMoon, FaSignOutAlt, FaSun, FaBars, FaSearch, FaUser, FaCog, FaPlus, FaRocket, FaChevronRight,
+  FaPalette, FaLeaf, FaMicrophone, FaEllipsisH, FaChartLine, FaTimes, FaBookmark, FaQuestionCircle,
+  FaMagic, FaVideo, FaSlidersH, FaHeadphones, FaPodcast, FaFileAudio
 } from 'react-icons/fa';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
@@ -27,8 +27,7 @@ const HomePage = ({ handleLogout }) => {
   const [posts, setPosts] = useState([]);
   const [postInteractions, setPostInteractions] = useState({});
   const [commentsVisible, setCommentsVisible] = useState({});
-  const [handleShare, setHandleShare] = useState({});
-  const [handleSave, setHandleSave] = useState({});
+  const [isPosting, setIsPosting] = useState(false);
 
   // Media handling
   const handleMediaUpload = (event) => {
@@ -57,48 +56,50 @@ const HomePage = ({ handleLogout }) => {
     setMediaType(null);
   };
 
-  // Post creation
+  // Enhanced post creation with better error handling
   const handleNewPost = async () => {
     if (!postText.trim() && !mediaPreview) {
       alert('Please add some text or media to post!');
       return;
     }
 
+    // Check for inappropriate content
+    const containsHatedWords = checkForHatedWords(postText);
+    if (containsHatedWords) {
+      setWarning('Your post contains inappropriate content and cannot be published.');
+      setTimeout(() => setWarning(''), 5000);
+      return;
+    }
+
+    setIsPosting(true);
     try {
-      const formData = new FormData();
-      formData.append('content', postText);
-      formData.append('userId', currentUser._id);
-
-      if (mediaPreview) {
-        const blob = await fetch(mediaPreview).then(r => r.blob());
-        formData.append('media', blob);
-        formData.append('mediaType', mediaType);
-      }
-
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/posts', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Create mock post for demo purposes
+      const newPost = {
+        _id: `post_${Date.now()}`,
+        content: postText,
+        userId: {
+          _id: currentUser?._id || 'demo_user',
+          username: currentUser?.username || 'demo_user',
+          profilePicture: currentUser?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=150'
         },
-        body: formData
-      });
+        createdAt: new Date().toISOString(),
+        likes: 0,
+        comments: [],
+        media: mediaPreview,
+        mediaType: mediaType,
+        flagged: false
+      };
 
-      if (response.ok) {
-        const newPost = await response.json();
-        const isFlagged = checkForHatedWords(newPost.content);
-        setPosts(prevPosts => [{
-          ...newPost,
-          flagged: isFlagged,
-          comments: [],
-          likes: 0
-        }, ...prevPosts]);
-        setPostText('');
-        setMediaPreview(null);
-        setMediaType(null);
-      }
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+      setPostText('');
+      setMediaPreview(null);
+      setMediaType(null);
     } catch (error) {
       console.error('Post creation error:', error);
+      setWarning('Failed to create post. Please try again.');
+      setTimeout(() => setWarning(''), 5000);
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -124,17 +125,28 @@ const HomePage = ({ handleLogout }) => {
     }));
   };
 
-  // Removed unused variable causing the error
-
   const handleCommentSubmit = (postId) => {
     const content = commentInputs[postId]?.trim();
     if (!content) return;
+    
+    // Check for inappropriate content in comments
+    if (checkForHatedWords(content)) {
+      setWarning('Your comment contains inappropriate content and cannot be posted.');
+      setTimeout(() => setWarning(''), 5000);
+      return;
+    }
+    
     const newComment = {
       _id: `c${Date.now()}`,
       content,
-      userId: currentUser?._id,
+      userId: {
+        _id: currentUser?._id || 'demo_user',
+        username: currentUser?.username || 'demo_user',
+        profilePicture: currentUser?.profilePicture || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=150'
+      },
       createdAt: new Date()
     };
+    
     setPosts(prevPosts => prevPosts.map(post => {
       if (post._id === postId) {
         return {
@@ -146,6 +158,29 @@ const HomePage = ({ handleLogout }) => {
     }));
     setCommentInputs(prev => ({ ...prev, [postId]: '' }));
   };
+
+  // Initialize with demo posts
+  useEffect(() => {
+    const demoPosts = [
+      {
+        _id: 'demo_post_1',
+        content: 'Welcome to EchoSpace! This is a demo post to showcase the platform.',
+        userId: {
+          _id: 'demo_user_1',
+          username: 'echospace_team',
+          profilePicture: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150'
+        },
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        likes: 12,
+        comments: [],
+        flagged: false
+      }
+    ];
+    
+    if (posts.length === 0) {
+      setPosts(demoPosts);
+    }
+  }, []);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -161,7 +196,7 @@ const HomePage = ({ handleLogout }) => {
   };
 
   const checkForHatedWords = (content) => {
-    return hatedWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content));
+    return hatedWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(content.toLowerCase()));
   };
 
   const fetchPosts = useCallback(async () => {
@@ -169,40 +204,12 @@ const HomePage = ({ handleLogout }) => {
       const response = await fetch('http://localhost:5000/api/posts');
       if (response.ok) {
         const data = await response.json();
-        setPosts(data.map(post => ({
-          ...post,
-          comments: post.comments || [],
-          flagged: checkForHatedWords(post.content) // flagged status
-        })));
+        setPosts(data.map(post => ({ ...post, comments: post.comments || [] })));
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
   }, []);
-
-  const checkContentSafety = async (content) => {
-    try {
-      const response = await fetch('/api/moderate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ content })
-      });
-      const { isSafe } = await response.json();
-      return isSafe;
-    } catch (error) {
-      console.error('Moderation check failed:', error);
-      return true;
-    }
-  };
-
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
 
   const handleAddLink = () => {
     const url = prompt('Enter the URL:');
@@ -229,7 +236,7 @@ const HomePage = ({ handleLogout }) => {
         const currentLikes = post.likes || 0;
         return {
           ...post,
-          likes: type === 'like' ? currentLikes + 1 : currentLikes - 1
+          likes: type === 'like' ? currentLikes + 1 : Math.max(0, currentLikes - 1)
         };
       }
       return post;
@@ -237,8 +244,8 @@ const HomePage = ({ handleLogout }) => {
     setPostInteractions(prev => ({
       ...prev,
       [postId]: {
-        liked: type === 'like' ? !prev[postId]?.liked : false,
-        disliked: type === 'dislike' ? !prev[postId]?.disliked : false
+        ...prev[postId],
+        [type === 'like' ? 'liked' : 'disliked']: !prev[postId]?.[type === 'like' ? 'liked' : 'disliked']
       }
     }));
   };
@@ -420,7 +427,7 @@ const HomePage = ({ handleLogout }) => {
             </button>
           </div>
           <button className="new-post-btn" onClick={handleNewPost}>
-            <FaPlus /> New Post
+            <FaPlus /> {isPosting ? 'Posting...' : 'New Post'}
           </button>
         </div>
 
@@ -491,7 +498,7 @@ const HomePage = ({ handleLogout }) => {
                       </button>
                       <button 
                         className={`downvote-btn ${postInteractions[post._id]?.disliked ? 'active' : ''}`}
-                        onClick={() => handlePostInteraction(post.id, 'dislike')}
+                        onClick={() => handlePostInteraction(post._id, 'dislike')}
                       >
                         <FaArrowDown /> Dislike
                       </button>
@@ -517,9 +524,9 @@ const HomePage = ({ handleLogout }) => {
                             />
                             <div className="comment-content">
                               <span className="comment-author">
-                                @{comment.userId?.username}
+                                @{comment.userId?.username || 'Unknown User'}
                               </span>
-                              {comment.content}
+                              <p className="comment-text">{comment.content}</p>
                             </div>
                           </div>
                         ))
