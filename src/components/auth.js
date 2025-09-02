@@ -117,6 +117,7 @@ const Auth = ({ isLogin: initialIsLogin, setIsAuthenticated, onSignupSuccess }) 
               />
             </div>
             {error && <div className="error-message">{error}</div>}
+            }
             <button type="submit" id="submit-button" disabled={loading} className={loading ? "loading" : ""}>
               {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
             </button>
