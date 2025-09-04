@@ -17,7 +17,7 @@ const ProfileSetup = ({ onComplete }) => {
   const [previewImage, setPreviewImage] = useState(null);
   const totalSteps = 5;
 
-  const { updateUser } = useContext(UserContext);
+  const { updateUserData } = useContext(UserContext);
 
   const handleCompleteProfile = async () => {
     try {

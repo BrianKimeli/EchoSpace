@@ -1,10 +1,7 @@
-import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { UserContext } from '../contexts/UserContext';
+import React, { useState } from 'react';
 import './messages.css';
 
 const Messages = () => {
-  const { currentUser } = useContext(UserContext);
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([
     { id: 1, text: 'Hey team! Ready for the launch? 🚀', sender: 'jane', timestamp: '10:30 AM' },
