@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import './profilesetup.css';
 import { useNavigate } from 'react-router-dom';
-import { Camera, MapPin, UserCircle, X, ChevronRight, Check, Upload } from 'lucide-react';
+import { Camera, MapPin, UserCircle, ChevronRight, Check, Upload } from 'lucide-react';
 import { UserContext } from '../contexts/UserContext'; // Make sure path is correct
 
 const ProfileSetup = ({ onComplete }) => {
@@ -17,7 +17,7 @@ const ProfileSetup = ({ onComplete }) => {
   const [previewImage, setPreviewImage] = useState(null);
   const totalSteps = 5;
 
-  const { currentUser, updateUserData, fetchUserData } = useContext(UserContext);
+  const { updateUserData } = useContext(UserContext);
 
   const handleCompleteProfile = async () => {
     try {
