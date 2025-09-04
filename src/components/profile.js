@@ -14,6 +14,7 @@ const Profile = () => {
             <h2>{currentUser.username || 'User'}</h2>
             <p>{currentUser.bio || 'No bio available'}</p>
             {currentUser.location && <p>📍 {currentUser.location}</p>}
+            }
           </div>
         ) : (
           <p>Please log in to view your profile.</p>
