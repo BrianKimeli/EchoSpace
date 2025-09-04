@@ -76,7 +76,6 @@ body {
   background: rgba(102, 126, 234, 0.1);
   transform: translateY(-2px);
 }
-}
 
 .profile-pic {
   width: 35px;
@@ -1648,9 +1647,9 @@ scroll-behavior: smooth;
   .comment-input {
     font-size: 0.85rem;
   }
-
   .post-options {
     flex-wrap: wrap;
     gap: 8px;
   }
+}
 }
