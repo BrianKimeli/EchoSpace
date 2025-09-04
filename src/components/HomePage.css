@@ -701,6 +701,7 @@ scroll-behavior: smooth;
 .new-post-btn:hover svg {
   transform: scale(1.1) rotate(90deg);
 }
+}
 
 /* Loading state */
 .new-post-btn.loading {
@@ -1575,17 +1576,15 @@ scroll-behavior: smooth;
 }
 
 .quick-help-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #667eea;
+  background: none;
+  border: 1px solid #667eea;
+  color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 10px;
-/* New Post Button */
   margin-top: 1rem;
   width: 100%;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1595,6 +1594,7 @@ scroll-behavior: smooth;
 .quick-help-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 /* Responsive Design */
@@ -1638,6 +1638,7 @@ scroll-behavior: smooth;
     display: block;
     background: rgba(102, 126, 234, 0.1);
     color: #667eea;
+  }
   .post-header {
     padding: 12px;
   }
@@ -1646,9 +1647,9 @@ scroll-behavior: smooth;
   .comment-input {
     font-size: 0.85rem;
   }
-    display: none;
-
-  position: relative;
   .post-options {
     flex-wrap: wrap;
     gap: 8px;
+  }
+}
+}
